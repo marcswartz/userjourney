@@ -17,11 +17,6 @@
     <style>
         body { margin: 0; padding: 0; }
         #root { height: 100vh; width: 100vw; }
-        /* Forces Mermaid SVG to stay large and trigger horizontal scrolling */
-        .mermaid-wrapper svg {
-            min-width: 1500px !important;
-            height: auto !important;
-        }
     </style>
 </head>
 <body>
@@ -55,7 +50,6 @@
                                 startOnLoad: false,
                                 theme: 'base',
                                 securityLevel: 'loose',
-                                flowchart: { useMaxWidth: false },
                                 themeVariables: {
                                     fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                                     primaryColor: '#ffffff',
@@ -78,11 +72,11 @@
             }, [chart]);
 
             return (
-                <div className="w-full h-full min-h-[600px] flex justify-start items-start overflow-auto bg-slate-50 rounded-xl border border-slate-200 shadow-inner p-8">
+                <div className="w-full h-full min-h-[600px] flex justify-center items-start overflow-auto bg-slate-50 rounded-xl border border-slate-200 shadow-inner p-8">
                     {svg ? (
-                        <div className="mermaid-wrapper w-full flex justify-start" dangerouslySetInnerHTML={{ __html: svg }} />
+                        <div className="mermaid-wrapper w-full flex justify-center" dangerouslySetInnerHTML={{ __html: svg }} />
                     ) : (
-                        <div className="flex items-center justify-center h-full text-slate-400 animate-pulse w-full">
+                        <div className="flex items-center justify-center h-full text-slate-400 animate-pulse">
                             Generating User Journey Map...
                         </div>
                     )}
@@ -91,9 +85,9 @@
         };
 
         function App() {
-            // Updated to graph LR (Left-to-Right) and stripped of old logic
+            // Updated to graph TD (Top-Down) while keeping MVP logic
             const journeyChart = `
-                graph LR
+                graph TD
                     classDef startEnd fill:#f3f4f6,stroke:#9ca3af,stroke-width:2px,color:#374151;
                     classDef process fill:#eff6ff,stroke:#60a5fa,stroke-width:2px,color:#1e3a8a,rx:6px,ry:6px;
                     classDef action fill:#f0fdf4,stroke:#4ade80,stroke-width:2px,color:#14532d,rx:6px,ry:6px;
