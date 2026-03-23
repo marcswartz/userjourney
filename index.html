@@ -100,10 +100,9 @@
                     CreateNote[Create new note]:::action
                     TypeDictate[Type or dictate]:::action
 
-                    SmartAssist[Smart Assist:<br/>Title, Summary, Tags]:::process
-                    AcceptDismiss[Accept or dismiss]:::option
+                    AddTags[Add optional tags]:::option
                     AddReminder[Attach optional reminder]:::option
-                    NoteSaved[Note saved with context]:::process
+                    NoteSaved[Note saved]:::process
 
                     ReminderFires[Reminder notification fires]:::path
                     TapNotif[Tap notification]:::path
@@ -113,7 +112,7 @@
                     BrowseSearch[Browse via tags or search]:::path
                     FindQuickly[Find note quickly]:::process
 
-                    Understand[Understand immediately]:::action
+                    FindRight[Find right note quickly]:::action
                     Reuse[Reuse instead of recreating]:::action
                     CompleteTask[Complete task]:::action
                     
@@ -123,9 +122,8 @@
                     OpenNotes --> CreateNote
                     CreateNote --> TypeDictate
                     
-                    TypeDictate --> SmartAssist
-                    SmartAssist --> AcceptDismiss
-                    AcceptDismiss --> AddReminder
+                    TypeDictate --> AddTags
+                    AddTags --> AddReminder
                     AddReminder --> NoteSaved
 
                     NoteSaved -- "Path 1: Reminder" --> ReminderFires
@@ -136,10 +134,10 @@
                     OpenLater --> BrowseSearch
                     BrowseSearch --> FindQuickly
 
-                    OpenDirect --> Understand
-                    FindQuickly --> Understand
+                    OpenDirect --> FindRight
+                    FindQuickly --> FindRight
 
-                    Understand --> Reuse
+                    FindRight --> Reuse
                     Reuse --> CompleteTask
                     CompleteTask --> End
             `;
@@ -190,10 +188,10 @@
                                     <div>
                                         <h3 className="font-semibold text-slate-900 text-lg">Phase 2: Post-Capture</h3>
                                         <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 mt-2 marker:text-slate-300">
-                                            <li>Smart Assist appears with AI-generated title, summary, and tags.</li>
-                                            <li>User can accept suggestions or dismiss instantly.</li>
-                                            <li>User can optionally attach a reminder.</li>
-                                            <li>Note is saved with lightweight context.</li>
+                                            <li>User can optionally add tags to the note.</li>
+                                            <li>Tags appear at the top of the note and as tag chips beneath search.</li>
+                                            <li>User can optionally attach a reminder to the note.</li>
+                                            <li>Note is saved.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -229,7 +227,7 @@
                                     <div>
                                         <h3 className="font-semibold text-slate-900 text-lg">Outcome</h3>
                                         <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 mt-2 marker:text-slate-300">
-                                            <li>User immediately understands the saved note.</li>
+                                            <li>User finds the right saved note quickly.</li>
                                             <li>User reuses it instead of recreating it.</li>
                                             <li>User completes the task with less effort.</li>
                                         </ul>
