@@ -5,22 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple Notes: Smart Note Continuity Journey</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel for compiling JSX in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Mermaid.js -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
 
     <style>
         body { margin: 0; padding: 0; }
         #root { height: 100vh; width: 100vw; }
+        /* Forces Mermaid SVG to stay large and trigger horizontal scrolling */
+        .mermaid-wrapper svg {
+            min-width: 1500px !important;
+            height: auto !important;
+        }
     </style>
 </head>
 <body>
@@ -29,7 +30,7 @@
     <script type="text/babel">
         const { useEffect, useState, useRef } = React;
 
-        // Inline SVGs replacing Lucide icons for standalone HTML compatibility
+        // Inline SVGs for standalone HTML compatibility
         const Icons = {
             Map: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>,
             BookOpen: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
@@ -54,6 +55,7 @@
                                 startOnLoad: false,
                                 theme: 'base',
                                 securityLevel: 'loose',
+                                flowchart: { useMaxWidth: false },
                                 themeVariables: {
                                     fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                                     primaryColor: '#ffffff',
@@ -76,11 +78,11 @@
             }, [chart]);
 
             return (
-                <div className="w-full h-full min-h-[600px] flex justify-center items-start overflow-auto bg-slate-50 rounded-xl border border-slate-200 shadow-inner p-8">
+                <div className="w-full h-full min-h-[600px] flex justify-start items-start overflow-auto bg-slate-50 rounded-xl border border-slate-200 shadow-inner p-8">
                     {svg ? (
-                        <div className="mermaid-wrapper w-full flex justify-center" dangerouslySetInnerHTML={{ __html: svg }} />
+                        <div className="mermaid-wrapper w-full flex justify-start" dangerouslySetInnerHTML={{ __html: svg }} />
                     ) : (
-                        <div className="flex items-center justify-center h-full text-slate-400 animate-pulse">
+                        <div className="flex items-center justify-center h-full text-slate-400 animate-pulse w-full">
                             Generating User Journey Map...
                         </div>
                     )}
@@ -89,56 +91,63 @@
         };
 
         function App() {
+            // Updated to graph LR (Left-to-Right) and stripped of old logic
             const journeyChart = `
-                graph TD
+                graph LR
                     classDef startEnd fill:#f3f4f6,stroke:#9ca3af,stroke-width:2px,color:#374151;
                     classDef process fill:#eff6ff,stroke:#60a5fa,stroke-width:2px,color:#1e3a8a,rx:6px,ry:6px;
                     classDef action fill:#f0fdf4,stroke:#4ade80,stroke-width:2px,color:#14532d,rx:6px,ry:6px;
-                    classDef decision fill:#fef9c3,stroke:#facc15,stroke-width:2px,color:#854d0e;
+                    classDef option fill:#fef9c3,stroke:#facc15,stroke-width:2px,color:#854d0e,rx:6px,ry:6px;
                     classDef path fill:#faf5ff,stroke:#c084fc,stroke-width:2px,color:#581c87,rx:6px,ry:6px;
 
                     Start((Start)):::startEnd
-                    OpenNotes[User opens Notes]:::process
-                    TapNew[User taps 'New note']:::action
-                    Duplicate{Similar note<br/>exists?}:::decision
-                    OpenExisting[Continue existing note]:::action
-                    TypeNote[User types or dictates]:::action
-                    ExitNote[User exits the note]:::process
-                    SmartAssist[Smart Assist sheet appears:<br/>Title, Summary, Tags]:::process
-                    Apply{Apply<br/>suggestions?}:::decision
-                    Reminder{Add<br/>reminder?}:::decision
-                    ContextSaved[Note contextualized<br/>& saved]:::process
-                    Resurface{Resurface<br/>Method}:::decision
-                    Notification[Reminder notification fires]:::path
-                    TapNotif[User taps notification]:::path
-                    DirectOpen[Note opens directly]:::process
-                    OpenLater[User opens Notes later]:::path
-                    AllNotes[Sees 'All Notes' view]:::process
-                    FindNote[Finds note via tag/search]:::path
-                    TaskComplete[User reads note &<br/>completes task]:::action
-                    EndNode((End)):::startEnd
+
+                    OpenNotes[Open Notes]:::process
+                    CreateNote[Create new note]:::action
+                    TypeDictate[Type or dictate]:::action
+
+                    SmartAssist[Smart Assist:<br/>Title, Summary, Tags]:::process
+                    AcceptDismiss[Accept or dismiss]:::option
+                    AddReminder[Attach optional reminder]:::option
+                    NoteSaved[Note saved with context]:::process
+
+                    ReminderFires[Reminder notification fires]:::path
+                    TapNotif[Tap notification]:::path
+                    OpenDirect[Note opens directly]:::process
+
+                    OpenLater[Open Notes later]:::path
+                    BrowseSearch[Browse via tags or search]:::path
+                    FindQuickly[Find note quickly]:::process
+
+                    Understand[Understand immediately]:::action
+                    Reuse[Reuse instead of recreating]:::action
+                    CompleteTask[Complete task]:::action
+                    
+                    End((End)):::startEnd
 
                     Start --> OpenNotes
-                    OpenNotes --> TapNew
-                    TapNew -->|Check| Duplicate
-                    Duplicate -- "Yes" --> OpenExisting
-                    Duplicate -- "No" --> TypeNote
-                    TypeNote --> ExitNote
-                    ExitNote --> SmartAssist
-                    SmartAssist --> Apply
-                    Apply -- "Apply or Dismiss" --> Reminder
-                    Reminder -- "Set Time or None" --> ContextSaved
-                    ContextSaved --> Resurface
-                    Resurface -- "Path 1: Reminder" --> Notification
-                    Notification --> TapNotif
-                    TapNotif --> DirectOpen
-                    Resurface -- "Path 2: Manual" --> OpenLater
-                    OpenLater --> AllNotes
-                    AllNotes --> FindNote
-                    OpenExisting --> TaskComplete
-                    DirectOpen --> TaskComplete
-                    FindNote --> TaskComplete
-                    TaskComplete --> EndNode
+                    OpenNotes --> CreateNote
+                    CreateNote --> TypeDictate
+                    
+                    TypeDictate --> SmartAssist
+                    SmartAssist --> AcceptDismiss
+                    AcceptDismiss --> AddReminder
+                    AddReminder --> NoteSaved
+
+                    NoteSaved -- "Path 1: Reminder" --> ReminderFires
+                    ReminderFires --> TapNotif
+                    TapNotif --> OpenDirect
+
+                    NoteSaved -- "Path 2: Manual" --> OpenLater
+                    OpenLater --> BrowseSearch
+                    BrowseSearch --> FindQuickly
+
+                    OpenDirect --> Understand
+                    FindQuickly --> Understand
+
+                    Understand --> Reuse
+                    Reuse --> CompleteTask
+                    CompleteTask --> End
             `;
 
             return (
@@ -150,7 +159,7 @@
                                 <span className="text-sm font-semibold tracking-wide uppercase">Journey Map</span>
                             </div>
                             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Apple Notes</h1>
-                            <p className="text-slate-500 mt-1">Smart Note Continuity Feature Flow</p>
+                            <p className="text-slate-500 mt-1">Note Continuity Feature Flow</p>
                         </div>
 
                         <div className="p-6 space-y-8 pb-20">
@@ -159,7 +168,7 @@
                                     <span className="text-slate-500"><Icons.BookOpen /></span> Scenario
                                 </h3>
                                 <p className="text-sm text-slate-600 leading-relaxed">
-                                    User encounters info they might need later (e.g., grocery items, meeting notes, an idea, or follow-up task).
+                                    User encounters information they may need later, such as a grocery item, meeting point, idea, or follow-up task.
                                 </p>
                             </div>
 
@@ -172,10 +181,10 @@
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-slate-900 text-lg">Phase 1: Capture</h3>
-                                        <p className="text-sm text-slate-500 mb-2">Instant capture remains untouched.</p>
-                                        <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 marker:text-slate-300">
-                                            <li>User taps "New note" and types/dictates.</li>
-                                            <li><strong>Optional Power User Branch:</strong> If a similar note exists (e.g. "Grocery List"), prompt to append to avoid duplicates.</li>
+                                        <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 mt-2 marker:text-slate-300">
+                                            <li>User opens Notes.</li>
+                                            <li>User creates a new note.</li>
+                                            <li>User types or dictates quickly.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -186,11 +195,11 @@
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-slate-900 text-lg">Phase 2: Post-Capture</h3>
-                                        <p className="text-sm text-slate-500 mb-2">New contextual features kick in seamlessly.</p>
-                                        <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 marker:text-slate-300">
-                                            <li>Smart Assist sheet appears with suggested title, 1-line summary, and tags.</li>
-                                            <li>User can optionally tap "Add Reminder" (e.g., today 6pm).</li>
-                                            <li>No friction: User can dismiss instantly.</li>
+                                        <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 mt-2 marker:text-slate-300">
+                                            <li>Smart Assist appears with AI-generated title, summary, and tags.</li>
+                                            <li>User can accept suggestions or dismiss instantly.</li>
+                                            <li>User can optionally attach a reminder.</li>
+                                            <li>Note is saved with lightweight context.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -200,21 +209,20 @@
                                         <Icons.Bell />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-slate-900 text-lg">Phase 3: Resurface</h3>
-                                        <p className="text-sm text-slate-500 mb-2">The "come back later" moment.</p>
+                                        <h3 className="font-semibold text-slate-900 text-lg">Phase 3: Return Later</h3>
                                         
                                         <div className="space-y-3 mt-3">
                                             <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                                                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 mb-1">
-                                                    Path 1 <span className="text-purple-500"><Icons.Bell /></span>
+                                                    Path 1: Reminder Recall <span className="text-purple-500"><Icons.Bell /></span>
                                                 </h4>
-                                                <p className="text-sm text-slate-600">Reminder fires → Notification deep-links directly to the note.</p>
+                                                <p className="text-sm text-slate-600">Reminder notification fires → User taps notification → Note opens directly.</p>
                                             </div>
                                             <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                                                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1 mb-1">
-                                                    Path 2 <span className="text-blue-500"><Icons.Search /></span>
+                                                    Path 2: Manual Refinding <span className="text-blue-500"><Icons.Search /></span>
                                                 </h4>
-                                                <p className="text-sm text-slate-600">User opens Notes later → Finds quickly via smart Tag chips or Search.</p>
+                                                <p className="text-sm text-slate-600">User opens Notes later → Browses with tag chips or uses search → Finds the right note quickly.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -226,9 +234,11 @@
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-slate-900 text-lg">Outcome</h3>
-                                        <p className="text-sm text-slate-600 leading-relaxed">
-                                            User reads the contextualized note, understands exactly what they meant, and completes the task.
-                                        </p>
+                                        <ul className="text-sm text-slate-600 space-y-1.5 list-disc pl-4 mt-2 marker:text-slate-300">
+                                            <li>User immediately understands the saved note.</li>
+                                            <li>User reuses it instead of recreating it.</li>
+                                            <li>User completes the task with less effort.</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +255,7 @@
                                     <span className="w-2.5 h-2.5 rounded-full bg-green-100 border border-green-400"></span> User Action
                                 </span>
                                 <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md">
-                                    <span className="w-3 h-3 rotate-45 bg-yellow-100 border border-yellow-400"></span> Decision
+                                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-100 border border-yellow-400"></span> Choice / Option
                                 </span>
                                 <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md">
                                     <span className="w-2.5 h-2.5 rounded-full bg-purple-100 border border-purple-400"></span> Specific Path
